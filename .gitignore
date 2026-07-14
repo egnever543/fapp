@@ -1,0 +1,12 @@
+# Dependências
+backend/node_modules/
+
+# Banco de dados (contém tokens e configurações sensíveis)
+backend/data/
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db

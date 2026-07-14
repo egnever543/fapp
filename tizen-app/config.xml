@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets"
+        xmlns:tizen="http://tizen.org/ns/widgets"
+        id="http://fusionplayer.app/FusionPlayer"
+        version="1.0.0">
+
+  <tizen:application id="FsnPlay.FusionPlayer" package="FsnPlay" required_version="4.0"/>
+
+  <content src="index.html"/>
+
+  <icon src="assets/icon_512.png"/>
+
+  <name>Fusion Player</name>
+  <name xml:lang="pt-BR">Fusion Player</name>
+
+  <description>Personal media streaming player for your Samsung TV.</description>
+  <description xml:lang="pt-BR">Player de mídia pessoal para sua Samsung TV.</description>
+
+  <tizen:privilege name="http://tizen.org/privilege/internet"/>
+  <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+  <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
+  <tizen:privilege name="http://tizen.org/privilege/avplay"/>
+
+  <tizen:setting
+    screen-orientation="landscape"
+    context-menu="disable"
+    background-support="disable"
+    encryption="disable"
+    install-location="auto"
+    hw-key-event="enable"
+  />
+
+  <access origin="*" subdomains="true"/>
+
+  <feature name="http://tizen.org/feature/tv"/>
+
+  <tizen:metadata key="http://samsung.com/tv/metadata/app.version" value="1.0.0"/>
+
+</widget>

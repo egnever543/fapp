@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fusion</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-wrap">
+    <div class="logo">
+      <img src="assets/logo.png" alt="Fusion" onerror="this.style.display='none';document.getElementById('logo-text').style.display='block'" />
+      <span id="logo-text" style="display:none">Fusion</span>
+    </div>
+    <div class="login-box">
+      <div class="field-group">
+        <label>USUÁRIO</label>
+        <input type="text" id="inp-user" autocomplete="off" spellcheck="false" />
+      </div>
+      <div class="field-group">
+        <label>SENHA</label>
+        <input type="password" id="inp-pass" />
+      </div>
+      <button id="btn-login" class="btn-login focusable" onclick="doLogin()">ENTRAR</button>
+      <div id="login-error" class="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="screen-home" class="screen">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <img src="assets/logo.png" alt="Fusion" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <span style="display:none">Fusion</span>
+    </div>
+    <div class="content-tabs">
+      <button class="content-tab active focusable" data-type="live" onclick="switchContentType('live',this)">AO VIVO</button>
+      <button class="content-tab focusable" data-type="vod" onclick="switchContentType('vod',this)">FILMES</button>
+      <button class="content-tab focusable" data-type="series" onclick="switchContentType('series',this)">SERIES</button>
+      <button class="content-tab focusable" data-type="subscription" onclick="openSubscription()">ASSINATURA</button>
+    </div>
+    <button class="btn-settings focusable" onclick="openSettings()">&#9881;</button>
+    <button class="btn-logout focusable" onclick="logout()">SAIR</button>
+  </div>
+
+<!-- CONFIGURAÇÕES -->
+<div id="settings-overlay" class="settings-overlay" style="display:none">
+  <div class="settings-panel">
+    <div class="settings-title">CONFIGURAÇÕES</div>
+
+    <div class="settings-section">
+      <div class="settings-label">Formato de Stream</div>
+      <div class="settings-options" id="opt-format">
+        <button class="opt-btn focusable" data-val="m3u8" onclick="setSetting('streamFormat','m3u8')">HLS (.m3u8)</button>
+        <button class="opt-btn focusable" data-val="ts"   onclick="setSetting('streamFormat','ts')">MPEG-TS (.ts)</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Player</div>
+      <div class="settings-options" id="opt-player">
+        <button class="opt-btn focusable" data-val="native" onclick="setSetting('player','native')">Nativo (HTML5)</button>
+        <button class="opt-btn focusable" data-val="avplay" onclick="setSetting('player','avplay')">AVPlay (Tizen)</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-label">Servidor Secundário (fallback)</div>
+      <div id="server2-status" class="server2-status"></div>
+    </div>
+
+    <button class="settings-close focusable" onclick="closeSettings()">FECHAR</button>
+  </div>
+</div>
+
+  <!-- Layout AO VIVO: 3 colunas -->
+  <div class="home-body" id="live-layout" style="display:none">
+    <div class="sidebar">
+      <div id="live-category-list"></div>
+    </div>
+    <div class="channel-list-col">
+      <div class="channel-header">
+        <input type="text" id="live-search" class="search-input focusable" placeholder="Buscar canal..." oninput="filterLive(this.value)" />
+      </div>
+      <div id="channel-list"></div>
+    </div>
+    <div class="live-preview-col">
+      <div class="live-preview-box">
+        <video id="live-preview-video" muted autoplay playsinline></video>
+        <div id="live-preview-placeholder" class="live-placeholder">Selecione um canal</div>
+      </div>
+      <div id="live-info" class="live-info">
+        <div id="live-ch-name" class="live-ch-name"></div>
+        <div id="epg-list" class="epg-list"></div>
+        <div class="live-actions">
+          <button class="focusable live-btn-play" onclick="playSelectedLive()">Assistir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Layout FILMES / SERIES: sidebar + grid -->
+  <div class="home-body" id="grid-layout" style="display:none">
+    <div class="sidebar">
+      <div id="grid-category-list"></div>
+    </div>
+    <div class="main-area">
+      <div class="grid-header">
+        <span id="cat-title">Carregando...</span>
+        <input type="text" id="search-input" class="search-input-grid focusable" placeholder="Buscar..." oninput="filterContent(this.value)" />
+      </div>
+      <div id="content-grid" class="content-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ASSINATURA -->
+<div id="screen-subscription" class="screen">
+  <div class="sub-wrap">
+
+    <!-- Painel info (sempre visível) -->
+    <div class="sub-info-panel" id="sub-info-panel">
+      <div class="sub-logo">FUSION</div>
+      <div class="sub-status-row">
+        <div class="sub-status-badge" id="sub-badge">—</div>
+      </div>
+      <div class="sub-detail-row">
+        <span class="sub-detail-label">Validade</span>
+        <span class="sub-detail-val" id="sub-expires">—</span>
+      </div>
+      <div class="sub-detail-row">
+        <span class="sub-detail-label">Plano</span>
+        <span class="sub-detail-val" id="sub-package">—</span>
+      </div>
+      <button class="sub-renew-btn focusable" id="sub-renew-btn" onclick="openRenewScreen()" style="display:none">
+        Renovar Acesso
+      </button>
+      <button class="sub-back-btn focusable" onclick="showScreen('screen-home')">Voltar</button>
+    </div>
+
+    <!-- Painel de renovação (tela de vencimento) -->
+    <div class="sub-renew-panel" id="sub-renew-panel" style="display:none">
+      <div class="renew-content">
+        <div class="renew-title">Seu acesso expirou</div>
+        <div class="renew-sub">Renove para continuar assistindo</div>
+        <div class="renew-body">
+          <div class="renew-url-block">
+            <div class="renew-label">Acesse o site para renovar:</div>
+            <div class="renew-url" id="renew-url-text">—</div>
+          </div>
+          <div class="renew-qr-block">
+            <img id="renew-qr" src="" alt="QR Code" class="renew-qr-img" />
+          </div>
+        </div>
+        <button class="sub-back-btn focusable" onclick="showScreen('screen-home')">Voltar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- DETALHE SÉRIE -->
+<div id="screen-series" class="screen">
+  <div class="series-header">
+    <button class="focusable ctrl-btn" onclick="showScreen('screen-home')">Voltar</button>
+    <div>
+      <div id="series-title" class="series-title"></div>
+      <div id="series-meta" class="series-meta"></div>
+    </div>
+    <img id="series-cover" src="" alt="" onerror="this.style.display='none'" />
+  </div>
+  <div class="series-body">
+    <div class="seasons-panel">
+      <div class="panel-title">Temporadas</div>
+      <div id="seasons-list"></div>
+    </div>
+    <div class="episodes-panel">
+      <div class="panel-title">Episodios</div>
+      <div id="episodes-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYER -->
+<div id="screen-player" class="screen">
+  <video id="player" autoplay></video>
+  <div id="player-overlay" class="player-overlay">
+    <div class="player-info">
+      <div id="player-cat" class="player-cat"></div>
+      <div id="player-name" class="player-name"></div>
+      <div id="player-sub" class="player-sub"></div>
+    </div>
+    <div class="player-controls">
+      <button class="focusable ctrl-btn" onclick="backFromPlayer()">Voltar</button>
+      <button class="focusable ctrl-btn" id="btn-mute" onclick="toggleMute()">Mudo</button>
+      <button class="focusable ctrl-btn" onclick="toggleFullscreen()">Tela Cheia</button>
+    </div>
+  </div>
+</div>
+
+<div id="loading-overlay" class="loading-overlay" style="display:none">
+  <div class="spinner"></div>
+  <div class="loading-text">Carregando</div>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

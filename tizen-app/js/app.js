@@ -336,7 +336,12 @@ function initPagination(container, items, pageSize, renderBatchFn) {
   }
   if (pageState.observer) pageState.observer.disconnect();
 
-  pageState = { items, offset: 0, pageSize, observer: null, container, renderFn: renderBatchFn, _scrollEl: null, _scrollFn: null };
+  // O scroll pode estar no container ou no pai (ex: .content-grid-scroll wrapping o grid)
+  const scrollEl = container.parentElement && container.parentElement.classList.contains('content-grid-scroll')
+    ? container.parentElement
+    : container;
+
+  pageState = { items, offset: 0, pageSize, observer: null, container, renderFn: renderBatchFn, _scrollEl: scrollEl, _scrollFn: null };
   container.innerHTML = '';
 
   if (!items.length) {
@@ -346,14 +351,13 @@ function initPagination(container, items, pageSize, renderBatchFn) {
 
   loadNextPage();
 
-  // Scroll event no container — dispara quando faltar 400px pro fim
+  // Scroll event — dispara quando faltar 400px pro fim
   const onScroll = () => {
-    if (container.scrollTop + container.clientHeight >= container.scrollHeight - 400) {
+    if (scrollEl.scrollTop + scrollEl.clientHeight >= scrollEl.scrollHeight - 400) {
       loadNextPage();
     }
   };
-  container.addEventListener('scroll', onScroll, { passive: true });
-  pageState._scrollEl = container;
+  scrollEl.addEventListener('scroll', onScroll, { passive: true });
   pageState._scrollFn = onScroll;
 }
 

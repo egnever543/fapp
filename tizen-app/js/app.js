@@ -500,6 +500,8 @@ function playSelectedLive() {
 // ─── GRID FILMES / SERIES ────────────────────────────────
 function renderGrid(items) {
   const grid = document.getElementById('content-grid');
+  const scrollEl = grid.parentElement;
+  if (scrollEl) scrollEl.scrollTop = 0;
 
   function thumb(src) {
     return `<div class="card-thumb">${src

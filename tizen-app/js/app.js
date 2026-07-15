@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   setupKeyboard();
+  setupPlayerEvents();
 
   // Auto-login se já tiver credenciais salvas
   const savedUser = localStorage.getItem('xu');
@@ -683,7 +684,53 @@ function backFromPlayer() {
 function toggleMute() {
   const v = document.getElementById('player');
   v.muted = !v.muted;
-  document.getElementById('btn-mute').textContent = v.muted ? 'Som: Off' : 'Mudo';
+  document.getElementById('btn-mute').textContent = v.muted ? '🔇' : '🔊';
+}
+
+function togglePlayPause() {
+  const v = document.getElementById('player');
+  if (v.paused) { v.play(); document.getElementById('btn-play-pause').innerHTML = '&#9646;&#9646;'; }
+  else          { v.pause(); document.getElementById('btn-play-pause').innerHTML = '&#9654;'; }
+}
+
+function playerSeek(sec) {
+  const v = document.getElementById('player');
+  if (!isFinite(v.duration)) return;
+  v.currentTime = Math.max(0, Math.min(v.duration, v.currentTime + sec));
+  showOverlay();
+}
+
+function playerSeekClick(e, wrap) {
+  const v = document.getElementById('player');
+  if (!isFinite(v.duration)) return;
+  const rect = wrap.getBoundingClientRect();
+  const ratio = (e.clientX - rect.left) / rect.width;
+  v.currentTime = ratio * v.duration;
+  showOverlay();
+}
+
+function fmtTime(s) {
+  if (!isFinite(s)) return '0:00';
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = Math.floor(s % 60);
+  return h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`
+    : `${m}:${String(ss).padStart(2,'0')}`;
+}
+
+function setupPlayerEvents() {
+  const v = document.getElementById('player');
+  v.addEventListener('timeupdate', () => {
+    if (!isFinite(v.duration)) return;
+    const pct = (v.currentTime / v.duration) * 100;
+    document.getElementById('player-progress-fill').style.width = pct + '%';
+    document.getElementById('player-time-cur').textContent = fmtTime(v.currentTime);
+    document.getElementById('player-time-dur').textContent = fmtTime(v.duration);
+  });
+  v.addEventListener('play',  () => { document.getElementById('btn-play-pause').innerHTML = '&#9646;&#9646;'; });
+  v.addEventListener('pause', () => { document.getElementById('btn-play-pause').innerHTML = '&#9654;'; });
+  v.addEventListener('ended', () => backFromPlayer());
 }
 
 function toggleFullscreen() {
@@ -722,7 +769,11 @@ function setupKeyboard() {
     if (screen === 'screen-player') {
       showOverlay();
       if (isBack)  { e.preventDefault(); backFromPlayer(); return; }
-      if (isEnter) { toggleMute(); return; }
+      if (isEnter || key === ' ') { e.preventDefault(); togglePlayPause(); return; }
+      if (code === 37 || key === 'ArrowLeft')  { e.preventDefault(); playerSeek(-10); return; }
+      if (code === 39 || key === 'ArrowRight') { e.preventDefault(); playerSeek(10);  return; }
+      if (code === 38 || key === 'ArrowUp')    { e.preventDefault(); playerSeek(30);  return; }
+      if (code === 40 || key === 'ArrowDown')  { e.preventDefault(); playerSeek(-30); return; }
       return;
     }
 

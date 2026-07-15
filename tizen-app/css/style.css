@@ -441,7 +441,7 @@ body {
   position: absolute; inset: 0; display: flex;
   flex-direction: column; justify-content: space-between;
   padding: clamp(24px, 4vh, 50px) clamp(24px, 5vw, 70px);
-  background: linear-gradient(to bottom, rgba(0,0,0,.7) 0%, transparent 35%, transparent 65%, rgba(0,0,0,.85) 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,.7) 0%, transparent 30%, transparent 60%, rgba(0,0,0,.92) 100%);
   opacity: 0; transition: opacity .3s;
 }
 .player-overlay.visible { opacity: 1; }
@@ -450,14 +450,36 @@ body {
 .player-name { font-size: clamp(20px, 3.5vw, 52px); font-weight: 700; color: #fff; }
 .player-sub { font-size: clamp(13px, 1.8vw, 26px); color: #888; margin-top: 10px; }
 
-.player-controls { display: flex; gap: clamp(10px, 1.5vw, 20px); align-items: center; }
+.player-bottom { display: flex; flex-direction: column; gap: clamp(8px, 1.2vh, 16px); }
+
+/* Barra de progresso */
+.player-progress-wrap {
+  width: 100%; cursor: pointer; padding: 8px 0;
+}
+.player-progress-bar {
+  width: 100%; height: clamp(3px, 0.4vh, 5px);
+  background: rgba(255,255,255,.2); border-radius: 4px; overflow: hidden;
+}
+.player-progress-fill {
+  height: 100%; width: 0%; background: #fff; border-radius: 4px;
+  transition: width .5s linear;
+}
+
+.player-time-row {
+  display: flex; justify-content: space-between;
+  font-size: clamp(11px, 1.3vw, 20px); color: #aaa;
+}
+
+.player-controls { display: flex; gap: clamp(6px, 1vw, 14px); align-items: center; flex-wrap: wrap; }
 .ctrl-btn {
-  padding: clamp(10px, 1.4vh, 16px) clamp(16px, 2.5vw, 40px);
+  padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.8vw, 28px);
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.2); border-radius: 6px;
-  color: #fff; font-size: clamp(13px, 1.8vw, 26px); cursor: pointer;
+  color: #fff; font-size: clamp(12px, 1.6vw, 24px); cursor: pointer;
+  white-space: nowrap;
 }
-.ctrl-btn:focus, .ctrl-btn:hover { border-color: #fff; background: rgba(255,255,255,.15); outline: none; }
+.ctrl-btn:focus, .ctrl-btn:hover { border-color: #fff; background: rgba(255,255,255,.18); outline: none; }
+.ctrl-btn.active { background: rgba(255,255,255,.25); border-color: #fff; }
 
 /* ─── LOADING ─────────────────────────────────────── */
 .loading-overlay {

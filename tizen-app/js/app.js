@@ -645,8 +645,10 @@ function startPlayer(url, cat, name, sub, returnTo) {
     _avPlayStart(url);
   } else {
     const video = document.getElementById('player');
+    video.muted = false;
     video.src = url;
     video.play().catch(() => {});
+    document.getElementById('btn-mute').innerHTML = '&#128266;';
   }
 }
 
